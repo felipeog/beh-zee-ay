@@ -1,0 +1,58 @@
+:root {
+  color-scheme: dark light;
+
+  --rect-fill: #fff;
+  --rect-stroke: #ddd;
+  --handle-fill: #ddd;
+  --handle-stroke: #222;
+  --curve-point-stroke: #ddd;
+  --curve-path-stroke: #222;
+  --text-fill: #222;
+  --handle-path-stroke: #eee;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --rect-fill: #000;
+    --rect-stroke: #222;
+    --handle-fill: #222;
+    --handle-stroke: #eee;
+    --curve-point-stroke: #222;
+    --curve-path-stroke: #eee;
+    --text-fill: #eee;
+    --handle-path-stroke: #222;
+  }
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+html,
+button {
+  font-family: system-ui, sans-serif;
+}
+
+.App {
+  margin: 1rem;
+}
+
+.App__svg {
+  margin: 2rem;
+  max-width: 600px;
+  overflow: visible;
+}
+
+/* .Handle {} */
+
+.Handle__circle {
+  cursor: move;
+}
+
+/* .HandlePath {} */
+
+/* .CurvePoints {} */
+
+/* .CurvePath {} */
