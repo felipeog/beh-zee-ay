@@ -1,8 +1,29 @@
 import { useMemo, useRef, useState } from "react";
 
+type TCoordinates = { x: number; y: number };
+type TPoint = TCoordinates & { id: number };
+type TPreset = TPoint[];
+
 const WIDTH = 500;
 const HEIGHT = 500;
-const DEFAULT_POINTS = [
+
+const EMPTY: TPreset = [];
+const LINEAR: TPreset = [
+  { id: 0, x: 0.25 * WIDTH, y: 0.25 * HEIGHT },
+  { id: 1, x: 0.75 * WIDTH, y: 0.75 * HEIGHT },
+];
+const QUADRATIC: TPreset = [
+  { id: 0, x: 0.25 * WIDTH, y: 0.75 * HEIGHT },
+  { id: 1, x: 0.5 * WIDTH, y: 0.25 * HEIGHT },
+  { id: 2, x: 0.75 * WIDTH, y: 0.75 * HEIGHT },
+];
+const CUBIC: TPreset = [
+  { id: 0, x: 0.25 * WIDTH, y: 0.75 * HEIGHT },
+  { id: 1, x: 0.25 * WIDTH, y: 0.25 * HEIGHT },
+  { id: 2, x: 0.75 * WIDTH, y: 0.25 * HEIGHT },
+  { id: 3, x: 0.75 * WIDTH, y: 0.75 * HEIGHT },
+];
+const HEART: TPreset = [
   { id: 0, x: 0.5 * WIDTH, y: 0.75 * HEIGHT },
   { id: 1, x: 0 * WIDTH, y: 0.25 * HEIGHT },
   { id: 2, x: 0.9 * WIDTH, y: 0.2 * HEIGHT },
@@ -11,115 +32,135 @@ const DEFAULT_POINTS = [
   { id: 5, x: 1 * WIDTH, y: 0.25 * HEIGHT },
   { id: 6, x: 0.5 * WIDTH, y: 0.725 * HEIGHT },
 ];
-const DEFAULT_STEPS = 32;
+
+const PRESET_MAP = {
+  empty: EMPTY,
+  linear: LINEAR,
+  quadratic: QUADRATIC,
+  cubic: CUBIC,
+  heart: HEART,
+};
+const PRESET_KEYS = Object.keys(PRESET_MAP);
+const PRESET_VALUES = Object.values(PRESET_MAP);
+
+const DEFAULT_SEGMENTS = 32;
 
 export function App() {
   const svgRef = useRef<SVGSVGElement>(null);
-  const [steps, setSteps] = useState(DEFAULT_STEPS);
-  const [points, setPoints] = useState(DEFAULT_POINTS);
+  const [segments, setSegments] = useState(DEFAULT_SEGMENTS);
+  const [points, setPoints] = useState(HEART);
 
   function handleRectClick(event: React.MouseEvent<SVGRectElement>) {
-    const cursorPoint = getSvgPoint({
+    const svgCoordinates = getSvgCoordinatesFromScreenCoordinates({
       x: event.clientX,
       y: event.clientY,
     });
+    const point: TPoint = {
+      id: points.length,
+      x: svgCoordinates.x,
+      y: svgCoordinates.y,
+    };
 
-    setPoints((prevPoints) => [
-      ...prevPoints,
-      {
-        id: prevPoints.length,
-        x: cursorPoint.x,
-        y: cursorPoint.y,
-      },
-    ]);
+    setPoints((prevPoints) => [...prevPoints, point]);
   }
 
-  const curvePoints = useMemo(() => {
-    if (points.length < 2 || steps < 2) return [];
+  const curveCoordinates = useMemo(() => {
+    if (points.length <= 0) return [];
 
-    const initialPoints = points.map(({ x, y }) => ({ x, y }));
-    const curvePoints = [{ ...initialPoints[0] }];
+    const initialCoordinates: TCoordinates[] = points.map(({ x, y }) => ({
+      x,
+      y,
+    }));
+    const curveCoordinates = [];
 
-    for (let i = 1; i <= steps; i++) {
-      const t = i / steps;
-      let points = [...initialPoints];
+    for (let segment = 0; segment < segments; segment++) {
+      const t = segment / segments;
+      let coordinates = [...initialCoordinates];
 
-      while (points.length > 1) {
-        const midpoints = [];
+      while (coordinates.length > 1) {
+        const midCoordinates = [];
 
-        for (let i = 0; i + 1 < points.length; ++i) {
-          let a = points[i];
-          let b = points[i + 1];
+        for (let i = 0; i + 1 < coordinates.length; ++i) {
+          const a = coordinates[i];
+          const b = coordinates[i + 1];
 
-          midpoints.push({
+          midCoordinates.push({
             x: a.x + t * (b.x - a.x),
             y: a.y + t * (b.y - a.y),
           });
         }
 
-        points = [...midpoints];
+        coordinates = [...midCoordinates];
       }
 
-      curvePoints.push(points[0]);
+      curveCoordinates.push(coordinates[0]);
     }
 
-    return curvePoints;
-  }, [points, steps]);
+    curveCoordinates.push({
+      ...initialCoordinates[initialCoordinates.length - 1],
+    });
 
-  function getSvgPoint({ x, y }: { x: number; y: number }) {
-    const svgPoint = svgRef.current!.createSVGPoint();
+    return curveCoordinates;
+  }, [points, segments]);
+
+  function getSvgCoordinatesFromScreenCoordinates(
+    screenCoordinates: TCoordinates,
+  ): TCoordinates {
     const screenMatrix = svgRef.current!.getScreenCTM();
     const svgMatrix = screenMatrix!.inverse();
+    const svgPoint = svgRef.current!.createSVGPoint();
 
-    svgPoint.x = x;
-    svgPoint.y = y;
+    svgPoint.x = screenCoordinates.x;
+    svgPoint.y = screenCoordinates.y;
 
-    return svgPoint.matrixTransform(svgMatrix);
+    const svgCoordinates = svgPoint.matrixTransform(svgMatrix);
+
+    return {
+      x: svgCoordinates.x,
+      y: svgCoordinates.y,
+    };
   }
 
-  function handleStepsInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const value = parseInt(event.target.value, 10);
+  function handleSegmentsInputChange(
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) {
+    const value = parseInt(event.target.value, 10) || 1;
 
-    if (!isNaN(value) && value > 0) {
-      setSteps(value);
-    }
+    setSegments(value);
   }
 
-  function handleResetButtonClick() {
-    setPoints(DEFAULT_POINTS);
-    setSteps(DEFAULT_STEPS);
-  }
-
-  function getHandleSetPosition(id: number) {
+  function getHandleSetPosition(id: TPoint["id"]) {
     return (event: React.PointerEvent<SVGCircleElement>) => {
       setPoints((prevPoints) => {
         const rect = svgRef.current!.getBoundingClientRect();
-        const topLeftPoint = getSvgPoint({
+        const topLeftCoordinates = getSvgCoordinatesFromScreenCoordinates({
           x: rect.left,
           y: rect.top,
         });
-        const bottomRightPoint = getSvgPoint({
+        const bottomRightCoordinates = getSvgCoordinatesFromScreenCoordinates({
           x: rect.right,
           y: rect.bottom,
         });
-
-        const cursorPoint = getSvgPoint({
+        const cursorCoordinates = getSvgCoordinatesFromScreenCoordinates({
           x: event.clientX,
           y: event.clientY,
         });
-        const clampedPoint = {
+        const clampedCoordinates = {
           x: Math.min(
-            Math.max(cursorPoint.x, topLeftPoint.x),
-            bottomRightPoint.x,
+            Math.max(cursorCoordinates.x, topLeftCoordinates.x),
+            bottomRightCoordinates.x,
           ),
           y: Math.min(
-            Math.max(cursorPoint.y, topLeftPoint.y),
-            bottomRightPoint.y,
+            Math.max(cursorCoordinates.y, topLeftCoordinates.y),
+            bottomRightCoordinates.y,
           ),
         };
-
         const points = [...prevPoints];
-        const point = { id, x: clampedPoint.x, y: clampedPoint.y };
+        const point: TPoint = {
+          id,
+          x: clampedCoordinates.x,
+          y: clampedCoordinates.y,
+        };
         const index = points.findIndex((p) => p.id === id);
 
         points.splice(index, 1, point);
@@ -146,7 +187,7 @@ export function App() {
         className="App__svg"
         ref={svgRef}
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 500 500"
+        viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
       >
         <rect
           onClick={handleRectClick}
@@ -162,19 +203,19 @@ export function App() {
         </g>
 
         <g>
-          <CurvePoints points={curvePoints} />
+          <CurvePoints coordinates={curveCoordinates} />
         </g>
 
         <g>
-          <CurvePath points={curvePoints} />
+          <CurvePath coordinates={curveCoordinates} />
         </g>
 
         <g>
-          {points.map((point) => (
+          {points.map((p) => (
             <Handle
-              key={point.id}
-              point={point}
-              setPosition={getHandleSetPosition(point.id)}
+              key={p.id}
+              point={p}
+              setPosition={getHandleSetPosition(p.id)}
             />
           ))}
         </g>
@@ -184,10 +225,11 @@ export function App() {
       <br />
 
       <label>
-        steps{" "}
+        segments
+        <br />
         <input
-          value={steps}
-          onChange={handleStepsInputChange}
+          value={segments}
+          onChange={handleSegmentsInputChange}
           type="number"
           min="1"
         />
@@ -196,7 +238,13 @@ export function App() {
       <br />
       <br />
 
-      <button onClick={handleResetButtonClick}>reset</button>
+      <p>presets</p>
+
+      {PRESET_KEYS.map((k, i) => (
+        <button key={k} onClick={() => setPoints(PRESET_VALUES[i])}>
+          {k}
+        </button>
+      ))}
     </main>
   );
 }
@@ -205,7 +253,7 @@ function Handle({
   point,
   setPosition,
 }: {
-  point: { id: number; x: number; y: number };
+  point: TPoint;
   setPosition: (event: React.PointerEvent<SVGCircleElement>) => void;
 }) {
   const circleRef = useRef<SVGCircleElement>(null);
@@ -257,11 +305,7 @@ function Handle({
   );
 }
 
-function HandlePath({
-  points,
-}: {
-  points: { id: number; x: number; y: number }[];
-}) {
+function HandlePath({ points }: { points: TPoint[] }) {
   const d = useMemo(() => {
     return points.reduce((a, c, i) => {
       const command = i > 0 ? "L" : "M";
@@ -281,13 +325,13 @@ function HandlePath({
   );
 }
 
-function CurvePoints({ points }: { points: { x: number; y: number }[] }) {
-  return points.map((point, index) => (
+function CurvePoints({ coordinates }: { coordinates: TCoordinates[] }) {
+  return coordinates.map((c, i) => (
     <circle
       className="CurvePoints"
-      key={index}
-      cx={point.x}
-      cy={point.y}
+      key={i}
+      cx={c.x}
+      cy={c.y}
       r="2"
       fill="none"
       stroke="var(--curve-point-stroke)"
@@ -296,14 +340,14 @@ function CurvePoints({ points }: { points: { x: number; y: number }[] }) {
   ));
 }
 
-function CurvePath({ points }: { points: { x: number; y: number }[] }) {
+function CurvePath({ coordinates }: { coordinates: TCoordinates[] }) {
   const d = useMemo(() => {
-    return points.reduce((a, c, i) => {
+    return coordinates.reduce((a, c, i) => {
       const command = i > 0 ? "L" : "M";
 
       return `${a} ${command} ${c.x} ${c.y}`;
     }, "");
-  }, [points]);
+  }, [coordinates]);
 
   return (
     <path
