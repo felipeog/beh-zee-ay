@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 // TODO: move to separate files
 
@@ -7,7 +7,7 @@ import { useMemo, useRef, useState } from "react";
 // =============================================================================
 
 type TCoordinates = { x: number; y: number };
-type TPoint = TCoordinates & { id: number };
+type TPoint = TCoordinates & { id: string; order: number };
 type TPreset = TPoint[];
 
 // =============================================================================
@@ -19,28 +19,28 @@ const HEIGHT = 500;
 
 const EMPTY: TPreset = [];
 const LINEAR: TPreset = [
-  { id: 0, x: 0.25 * WIDTH, y: 0.25 * HEIGHT },
-  { id: 1, x: 0.75 * WIDTH, y: 0.75 * HEIGHT },
+  { id: generateId(), order: 0, x: 0.25 * WIDTH, y: 0.25 * HEIGHT },
+  { id: generateId(), order: 1, x: 0.75 * WIDTH, y: 0.75 * HEIGHT },
 ];
 const QUADRATIC: TPreset = [
-  { id: 0, x: 0.25 * WIDTH, y: 0.75 * HEIGHT },
-  { id: 1, x: 0.5 * WIDTH, y: 0.25 * HEIGHT },
-  { id: 2, x: 0.75 * WIDTH, y: 0.75 * HEIGHT },
+  { id: generateId(), order: 0, x: 0.25 * WIDTH, y: 0.75 * HEIGHT },
+  { id: generateId(), order: 1, x: 0.5 * WIDTH, y: 0.25 * HEIGHT },
+  { id: generateId(), order: 2, x: 0.75 * WIDTH, y: 0.75 * HEIGHT },
 ];
 const CUBIC: TPreset = [
-  { id: 0, x: 0.25 * WIDTH, y: 0.75 * HEIGHT },
-  { id: 1, x: 0.25 * WIDTH, y: 0.25 * HEIGHT },
-  { id: 2, x: 0.75 * WIDTH, y: 0.25 * HEIGHT },
-  { id: 3, x: 0.75 * WIDTH, y: 0.75 * HEIGHT },
+  { id: generateId(), order: 0, x: 0.25 * WIDTH, y: 0.75 * HEIGHT },
+  { id: generateId(), order: 1, x: 0.25 * WIDTH, y: 0.25 * HEIGHT },
+  { id: generateId(), order: 2, x: 0.75 * WIDTH, y: 0.25 * HEIGHT },
+  { id: generateId(), order: 3, x: 0.75 * WIDTH, y: 0.75 * HEIGHT },
 ];
 const HEART: TPreset = [
-  { id: 0, x: 0.5 * WIDTH, y: 0.75 * HEIGHT },
-  { id: 1, x: 0 * WIDTH, y: 0.25 * HEIGHT },
-  { id: 2, x: 0.9 * WIDTH, y: 0.2 * HEIGHT },
-  { id: 3, x: 0.5 * WIDTH, y: 1 * HEIGHT },
-  { id: 4, x: 0.1 * WIDTH, y: 0.2 * HEIGHT },
-  { id: 5, x: 1 * WIDTH, y: 0.25 * HEIGHT },
-  { id: 6, x: 0.5 * WIDTH, y: 0.725 * HEIGHT },
+  { id: generateId(), order: 0, x: 0.5 * WIDTH, y: 0.75 * HEIGHT },
+  { id: generateId(), order: 1, x: 0 * WIDTH, y: 0.25 * HEIGHT },
+  { id: generateId(), order: 2, x: 0.9 * WIDTH, y: 0.2 * HEIGHT },
+  { id: generateId(), order: 3, x: 0.5 * WIDTH, y: 1 * HEIGHT },
+  { id: generateId(), order: 4, x: 0.1 * WIDTH, y: 0.2 * HEIGHT },
+  { id: generateId(), order: 5, x: 1 * WIDTH, y: 0.25 * HEIGHT },
+  { id: generateId(), order: 6, x: 0.5 * WIDTH, y: 0.725 * HEIGHT },
 ];
 
 const PRESET_MAP = {
@@ -65,6 +65,10 @@ function logger(...args: any[]) {
   console.log(...args);
 }
 
+function generateId() {
+  return crypto.randomUUID();
+}
+
 // =============================================================================
 // components
 // =============================================================================
@@ -80,7 +84,8 @@ export function App() {
       y: event.clientY,
     });
     const point: TPoint = {
-      id: points.length,
+      id: generateId(),
+      order: points.length,
       x: svgCoordinates.x,
       y: svgCoordinates.y,
     };
@@ -195,7 +200,7 @@ export function App() {
     setPoints((prevPoints) => {
       const points = prevPoints
         .filter((p) => p.id !== id)
-        .map((p, i) => ({ ...p, id: i }));
+        .map((p, i) => ({ ...p, order: i }));
 
       return points;
     });
@@ -301,15 +306,23 @@ function Handle({
   const circleRef = useRef<SVGCircleElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
+  useEffect(() => {
+    logger(`[Handle ${point.id}] useEffect mount`);
+
+    return () => {
+      logger(`[Handle ${point.id}] useEffect unmount`);
+    };
+  }, []);
+
   function handlePointerDown(event: React.PointerEvent<SVGCircleElement>) {
-    logger(`[pointer down] handle ${point.id}`);
+    logger(`[Handle ${point.id}] handlePointerDown`);
     event.preventDefault();
 
     circleRef.current!.setPointerCapture(event.pointerId);
   }
 
   function handlePointerMove(event: React.PointerEvent<SVGCircleElement>) {
-    logger(`[pointer move] handle ${point.id}, isDragging: ${isDragging}`);
+    logger(`[Handle ${point.id}] handlePointerMove`);
     event.preventDefault();
 
     if (!isDragging) return;
@@ -318,7 +331,7 @@ function Handle({
   }
 
   function handlePointerUp(event: React.PointerEvent<SVGCircleElement>) {
-    logger(`[pointer up] handle ${point.id}`);
+    logger(`[Handle ${point.id}] handlePointerUp`);
     event.preventDefault();
 
     circleRef.current!.releasePointerCapture(event.pointerId);
@@ -327,7 +340,7 @@ function Handle({
   function handleGotPointerCapture(
     event: React.PointerEvent<SVGCircleElement>,
   ) {
-    logger(`[got pointer capture] handle ${point.id}`);
+    logger(`[Handle ${point.id}] handleGotPointerCapture`);
     event.preventDefault();
     setIsDragging(true);
   }
@@ -335,13 +348,13 @@ function Handle({
   function handleLostPointerCapture(
     event: React.PointerEvent<SVGCircleElement>,
   ) {
-    logger(`[lost pointer capture] handle ${point.id}`);
+    logger(`[Handle ${point.id}] handleLostPointerCapture`);
     event.preventDefault();
     setIsDragging(false);
   }
 
   function handleDoubleClick(event: React.MouseEvent<SVGCircleElement>) {
-    logger(`[double click] handle ${point.id}`);
+    logger(`[Handle ${point.id}] handleDoubleClick`);
     event.preventDefault();
     remove(point.id);
   }
@@ -371,7 +384,7 @@ function Handle({
         dominantBaseline="central"
         fill="var(--text-fill)"
       >
-        {point.id}
+        {point.order}
       </text>
     </g>
   );
