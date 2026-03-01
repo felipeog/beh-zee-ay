@@ -154,6 +154,8 @@ export function App() {
   }
 
   function getHandleSetPosition(id: TPoint["id"]) {
+    const index = points.findIndex((p) => p.id === id);
+
     return (event: React.PointerEvent<SVGCircleElement>) => {
       setPoints((prevPoints) => {
         const rect = svgRef.current!.getBoundingClientRect();
@@ -180,30 +182,43 @@ export function App() {
           ),
         };
         const points = [...prevPoints];
-        const point: TPoint = {
-          id,
-          x: clampedCoordinates.x,
-          y: clampedCoordinates.y,
-        };
-        const index = points.findIndex((p) => p.id === id);
 
-        points.splice(index, 1, point);
+        points[index].x = clampedCoordinates.x;
+        points[index].y = clampedCoordinates.y;
 
         return points;
       });
     };
   }
 
+  function removeHandle(id: TPoint["id"]) {
+    setPoints((prevPoints) => {
+      const points = prevPoints
+        .filter((p) => p.id !== id)
+        .map((p, i) => ({ ...p, id: i }));
+
+      return points;
+    });
+  }
+
   return (
     <main className="App">
       <h1>Beh Zee Ay</h1>
 
-      <a
-        href="https://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm"
-        target="_blank"
-      >
-        De Casteljau's algorithm
-      </a>
+      <p>
+        <a
+          href="https://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm"
+          target="_blank"
+        >
+          De Casteljau's algorithm
+        </a>
+      </p>
+
+      <br />
+
+      <p>add a handle by clicking inside the square</p>
+      <p>remove a handle by double clicking it</p>
+      <p>move a handle by dragging it</p>
 
       <br />
 
@@ -240,6 +255,7 @@ export function App() {
               key={p.id}
               point={p}
               setPosition={getHandleSetPosition(p.id)}
+              remove={removeHandle}
             />
           ))}
         </g>
@@ -276,9 +292,11 @@ export function App() {
 function Handle({
   point,
   setPosition,
+  remove,
 }: {
   point: TPoint;
   setPosition: (event: React.PointerEvent<SVGCircleElement>) => void;
+  remove: (id: TPoint["id"]) => void;
 }) {
   const circleRef = useRef<SVGCircleElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -322,6 +340,12 @@ function Handle({
     setIsDragging(false);
   }
 
+  function handleDoubleClick(event: React.MouseEvent<SVGCircleElement>) {
+    logger(`[double click] handle ${point.id}`);
+    event.preventDefault();
+    remove(point.id);
+  }
+
   return (
     <g className="Handle">
       <circle
@@ -338,6 +362,7 @@ function Handle({
         onPointerUp={handlePointerUp}
         onGotPointerCapture={handleGotPointerCapture}
         onLostPointerCapture={handleLostPointerCapture}
+        onDoubleClick={handleDoubleClick}
       ></circle>
 
       <text
