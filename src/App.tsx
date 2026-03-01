@@ -51,10 +51,10 @@ const PRESET_MAP = {
   heart: HEART,
   get random() {
     const count = Math.floor(Math.random() * 8 + 2);
-    const points: TPoint[] = [];
+    const preset: TPreset = [];
 
     for (let i = 0; i < count; i++) {
-      points.push({
+      preset.push({
         id: generateId(),
         order: i,
         x: Math.random() * WIDTH,
@@ -62,7 +62,7 @@ const PRESET_MAP = {
       });
     }
 
-    return points;
+    return preset;
   },
 };
 
