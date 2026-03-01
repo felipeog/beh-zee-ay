@@ -46,6 +46,11 @@ button {
   overflow: visible;
 }
 
+.App__presets {
+  display: flex;
+  gap: 0.5rem;
+}
+
 /* .Handle {} */
 
 .Handle__circle {

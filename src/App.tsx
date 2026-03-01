@@ -49,9 +49,22 @@ const PRESET_MAP = {
   quadratic: QUADRATIC,
   cubic: CUBIC,
   heart: HEART,
+  get random() {
+    const count = Math.floor(Math.random() * 8 + 2);
+    const points: TPoint[] = [];
+
+    for (let i = 0; i < count; i++) {
+      points.push({
+        id: generateId(),
+        order: i,
+        x: Math.random() * WIDTH,
+        y: Math.random() * HEIGHT,
+      });
+    }
+
+    return points;
+  },
 };
-const PRESET_KEYS = Object.keys(PRESET_MAP);
-const PRESET_VALUES = Object.values(PRESET_MAP);
 
 const DEFAULT_SEGMENTS = 32;
 
@@ -225,8 +238,6 @@ export function App() {
       <p>remove a handle by double clicking it</p>
       <p>move a handle by dragging it</p>
 
-      <br />
-
       <svg
         className="App__svg"
         ref={svgRef}
@@ -267,7 +278,6 @@ export function App() {
       </svg>
 
       <br />
-      <br />
 
       <label>
         segments
@@ -285,11 +295,13 @@ export function App() {
 
       <p>presets</p>
 
-      {PRESET_KEYS.map((k, i) => (
-        <button key={k} onClick={() => setPoints(PRESET_VALUES[i])}>
-          {k}
-        </button>
-      ))}
+      <div className="App__presets">
+        {Object.entries(PRESET_MAP).map(([k, v]) => (
+          <button key={k} onClick={() => setPoints(v)}>
+            {k}
+          </button>
+        ))}
+      </div>
     </main>
   );
 }
