@@ -1,8 +1,18 @@
 import { useMemo, useRef, useState } from "react";
 
+// TODO: move to separate files
+
+// =============================================================================
+// types
+// =============================================================================
+
 type TCoordinates = { x: number; y: number };
 type TPoint = TCoordinates & { id: number };
 type TPreset = TPoint[];
+
+// =============================================================================
+// constants
+// =============================================================================
 
 const WIDTH = 500;
 const HEIGHT = 500;
@@ -44,6 +54,20 @@ const PRESET_KEYS = Object.keys(PRESET_MAP);
 const PRESET_VALUES = Object.values(PRESET_MAP);
 
 const DEFAULT_SEGMENTS = 32;
+
+// =============================================================================
+// helpers
+// =============================================================================
+
+function logger(...args: any[]) {
+  if (import.meta.env.PROD) return;
+
+  console.log(...args);
+}
+
+// =============================================================================
+// components
+// =============================================================================
 
 export function App() {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -260,21 +284,42 @@ function Handle({
   const [isDragging, setIsDragging] = useState(false);
 
   function handlePointerDown(event: React.PointerEvent<SVGCircleElement>) {
-    setIsDragging(true);
+    logger(`[pointer down] handle ${point.id}`);
+    event.preventDefault();
 
     circleRef.current!.setPointerCapture(event.pointerId);
   }
 
   function handlePointerMove(event: React.PointerEvent<SVGCircleElement>) {
+    logger(`[pointer move] handle ${point.id}, isDragging: ${isDragging}`);
+    event.preventDefault();
+
     if (!isDragging) return;
 
     setPosition(event);
   }
 
   function handlePointerUp(event: React.PointerEvent<SVGCircleElement>) {
-    setIsDragging(false);
+    logger(`[pointer up] handle ${point.id}`);
+    event.preventDefault();
 
     circleRef.current!.releasePointerCapture(event.pointerId);
+  }
+
+  function handleGotPointerCapture(
+    event: React.PointerEvent<SVGCircleElement>,
+  ) {
+    logger(`[got pointer capture] handle ${point.id}`);
+    event.preventDefault();
+    setIsDragging(true);
+  }
+
+  function handleLostPointerCapture(
+    event: React.PointerEvent<SVGCircleElement>,
+  ) {
+    logger(`[lost pointer capture] handle ${point.id}`);
+    event.preventDefault();
+    setIsDragging(false);
   }
 
   return (
@@ -291,6 +336,8 @@ function Handle({
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
+        onGotPointerCapture={handleGotPointerCapture}
+        onLostPointerCapture={handleLostPointerCapture}
       ></circle>
 
       <text
