@@ -20,6 +20,10 @@ export function App() {
             target="_blank"
           >
             De Casteljau's algorithm
+          </a>{" "}
+          |{" "}
+          <a href="https://en.wikipedia.org/wiki/Bernstein_polynomial">
+            Bernstein polynomial
           </a>
         </p>
       </header>

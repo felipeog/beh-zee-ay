@@ -27,6 +27,22 @@ const WIDTH = 500;
 const HEIGHT = 500;
 
 const EMPTY: TPreset = [];
+const LINE: TPreset = [
+  {
+    id: generateId(),
+    order: 0,
+    left: { x: 0.25 * WIDTH, y: 0.25 * HEIGHT },
+    middle: { x: 0.25 * WIDTH, y: 0.25 * HEIGHT },
+    right: { x: 0.25 * WIDTH, y: 0.25 * HEIGHT },
+  },
+  {
+    id: generateId(),
+    order: 1,
+    left: { x: 0.75 * WIDTH, y: 0.75 * HEIGHT },
+    middle: { x: 0.75 * WIDTH, y: 0.75 * HEIGHT },
+    right: { x: 0.75 * WIDTH, y: 0.75 * HEIGHT },
+  },
+];
 const CURVE: TPreset = [
   {
     id: generateId(),
@@ -97,6 +113,7 @@ const HEART: TPreset = [
 
 const PRESET_MAP = {
   empty: EMPTY,
+  line: LINE,
   curve: CURVE,
   heart: HEART,
   get random() {
@@ -126,7 +143,7 @@ const PRESET_MAP = {
   },
 };
 
-const DEFAULT_SEGMENTS = 32;
+const DEFAULT_SEGMENTS = 8;
 
 // =============================================================================
 // helpers
@@ -176,43 +193,33 @@ export function ManyCubic() {
   const curveCoord = useMemo(() => {
     if (points.length < 2) return [];
 
-    const curveCoord = [];
+    const curveCoord: TCoord[] = [];
 
     for (let i = 0; i < points.length - 1; ++i) {
       const a = points[i];
       const b = points[i + 1];
+      const p0 = { ...a.middle };
+      const p1 = { ...a.right };
+      const p2 = { ...b.left };
+      const p3 = { ...b.middle };
 
-      const initialCoord: TCoord[] = [
-        { ...a.middle },
-        { ...a.right },
-        { ...b.left },
-        { ...b.middle },
-      ];
-
-      for (let segment = 0; segment < segments; segment++) {
+      for (let segment = 0; segment <= segments; segment++) {
         const t = segment / segments;
-        let coord = [...initialCoord];
+        const u = 1 - t;
 
-        while (coord.length > 1) {
-          const midCoordinates = [];
-
-          for (let i = 0; i + 1 < coord.length; ++i) {
-            const a = coord[i];
-            const b = coord[i + 1];
-
-            midCoordinates.push({
-              x: a.x + t * (b.x - a.x),
-              y: a.y + t * (b.y - a.y),
-            });
-          }
-
-          coord = [...midCoordinates];
-        }
-
-        curveCoord.push(coord[0]);
+        curveCoord.push({
+          x:
+            u * u * u * p0.x +
+            3 * u * u * t * p1.x +
+            3 * u * t * t * p2.x +
+            t * t * t * p3.x,
+          y:
+            u * u * u * p0.y +
+            3 * u * u * t * p1.y +
+            3 * u * t * t * p2.y +
+            t * t * t * p3.y,
+        });
       }
-
-      curveCoord.push({ ...initialCoord[initialCoord.length - 1] });
     }
 
     return curveCoord;
@@ -303,6 +310,12 @@ export function ManyCubic() {
       <h2>Many cubic curves</h2>
 
       <p>
+        <a href="https://en.wikipedia.org/wiki/Bernstein_polynomial">
+          Bernstein polynomial
+        </a>
+      </p>
+
+      <p>
         add a handle (circle) with its control points (squares) by clicking
         inside the square
       </p>
@@ -349,7 +362,7 @@ export function ManyCubic() {
         </g>
       </svg>
 
-      <label htmlFor="segments">segments</label>
+      <label htmlFor="segments">segments per curve</label>
       <input
         id="segments"
         value={segments}

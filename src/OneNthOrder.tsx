@@ -66,7 +66,7 @@ const PRESET_MAP = {
   },
 };
 
-const DEFAULT_SEGMENTS = 32;
+const DEFAULT_SEGMENTS = 64;
 
 // =============================================================================
 // helpers
@@ -121,7 +121,7 @@ export function OneNthOrder() {
     }));
     const curveCoordinates = [];
 
-    for (let segment = 0; segment < segments; segment++) {
+    for (let segment = 0; segment <= segments; segment++) {
       const t = segment / segments;
       let coordinates = [...initialCoordinates];
 
@@ -143,10 +143,6 @@ export function OneNthOrder() {
 
       curveCoordinates.push(coordinates[0]);
     }
-
-    curveCoordinates.push({
-      ...initialCoordinates[initialCoordinates.length - 1],
-    });
 
     return curveCoordinates;
   }, [points, segments]);
@@ -228,6 +224,15 @@ export function OneNthOrder() {
   return (
     <section className="OneNthOrder">
       <h2>One nth-order curve</h2>
+
+      <p>
+        <a
+          href="https://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm"
+          target="_blank"
+        >
+          De Casteljau's algorithm
+        </a>
+      </p>
 
       <p>add a handle by clicking inside the square</p>
       <p>remove a handle by double clicking it</p>
