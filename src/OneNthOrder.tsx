@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import "./OneNthOrder.style.css";
 
 // TODO: move to separate files
 
@@ -235,7 +234,7 @@ export function OneNthOrder() {
       <p>move a handle by dragging it</p>
 
       <svg
-        className="OneNthOrder__svg"
+        className="svg"
         ref={svgRef}
         xmlns="http://www.w3.org/2000/svg"
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
@@ -273,25 +272,17 @@ export function OneNthOrder() {
         </g>
       </svg>
 
-      <br />
-
-      <label>
-        segments
-        <br />
-        <input
-          value={segments}
-          onChange={handleSegmentsInputChange}
-          type="number"
-          min="1"
-        />
-      </label>
-
-      <br />
-      <br />
+      <label htmlFor="segments">segments</label>
+      <input
+        id="segments"
+        value={segments}
+        onChange={handleSegmentsInputChange}
+        type="number"
+        min="1"
+      />
 
       <p>presets</p>
-
-      <div className="OneNthOrder__presets">
+      <div className="grid">
         {Object.entries(PRESET_MAP).map(([k, v]) => (
           <button key={k} onClick={() => setPoints(v)}>
             {k}
@@ -370,7 +361,7 @@ function Handle({
   return (
     <g className="Handle">
       <circle
-        className="Handle__circle"
+        className="draggable"
         ref={circleRef}
         cx={point.x}
         cy={point.y}

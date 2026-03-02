@@ -21,3 +21,13 @@
     --handle-path-stroke: #222;
   }
 }
+
+.svg {
+  margin-bottom: 1rem;
+  max-width: 600px;
+  overflow: visible;
+}
+
+.draggable {
+  cursor: move;
+}

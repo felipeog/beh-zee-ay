@@ -1,5 +1,4 @@
 import { useMemo, useRef, useState } from "react";
-import "./ManyCubic.style.css";
 
 // TODO: move to separate files
 
@@ -312,7 +311,7 @@ export function ManyCubic() {
       <p>move a handle by dragging it</p>
 
       <svg
-        className="ManyCubic__svg"
+        className="svg"
         ref={svgRef}
         xmlns="http://www.w3.org/2000/svg"
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
@@ -350,25 +349,17 @@ export function ManyCubic() {
         </g>
       </svg>
 
-      <br />
-
-      <label>
-        segments
-        <br />
-        <input
-          value={segments}
-          onChange={handleSegmentsInputChange}
-          type="number"
-          min="1"
-        />
-      </label>
-
-      <br />
-      <br />
+      <label htmlFor="segments">segments</label>
+      <input
+        id="segments"
+        value={segments}
+        onChange={handleSegmentsInputChange}
+        type="number"
+        min="1"
+      />
 
       <p>presets</p>
-
-      <div className="ManyCubic__presets">
+      <div className="grid">
         {Object.entries(PRESET_MAP).map(([k, v]) => (
           <button key={k} onClick={() => setPoints(v)}>
             {k}
@@ -462,7 +453,7 @@ function Handle({
       </text>
 
       <circle
-        className="Handle__circle"
+        className="draggable"
         ref={middleRef}
         cx={point.middle.x}
         cy={point.middle.y}
@@ -479,7 +470,7 @@ function Handle({
       ></circle>
 
       <rect
-        className="Handle__rect"
+        className="draggable"
         ref={rightRef}
         x={point.right.x - 7 / 2}
         y={point.right.y - 7 / 2}
@@ -495,7 +486,7 @@ function Handle({
         onLostPointerCapture={handleLostPointerCapture}
       ></rect>
       <rect
-        className="Handle__rect"
+        className="draggable"
         ref={leftRef}
         x={point.left.x - 7 / 2}
         y={point.left.y - 7 / 2}

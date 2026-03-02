@@ -1,32 +1,46 @@
 import { OneNthOrder } from "./OneNthOrder";
 import { ManyCubic } from "./ManyCubic";
-import "./App.style.css";
 
 export function App() {
   return (
-    <main className="App">
-      <h1>Beh Zee Ay</h1>
+    <>
+      <header>
+        <h1>Beh Zee Ay</h1>
 
-      <p>
-        <a
-          href="https://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm"
-          target="_blank"
-        >
-          De Casteljau's algorithm
+        <p>
+          <a
+            href="https://en.wikipedia.org/wiki/B%C3%A9zier_curve"
+            target="_blank"
+          >
+            Bézier curve
+          </a>{" "}
+          |{" "}
+          <a
+            href="https://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm"
+            target="_blank"
+          >
+            De Casteljau's algorithm
+          </a>
+        </p>
+      </header>
+
+      <hr />
+
+      <main>
+        <OneNthOrder />
+
+        <hr />
+
+        <ManyCubic />
+      </main>
+
+      <hr />
+
+      <footer>
+        <a href="https://github.com/felipeog/beh-zee-ay">
+          github.com/felipeog/beh-zee-ay
         </a>
-      </p>
-
-      <br />
-      <hr />
-      <br />
-
-      <OneNthOrder />
-
-      <br />
-      <hr />
-      <br />
-
-      <ManyCubic />
-    </main>
+      </footer>
+    </>
   );
 }
