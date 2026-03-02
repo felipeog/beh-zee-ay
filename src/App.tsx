@@ -41,7 +41,7 @@ export function App() {
       <hr />
 
       <footer>
-        <a href="https://github.com/felipeog/beh-zee-ay">
+        <a href="https://github.com/felipeog/beh-zee-ay" target="_blank">
           github.com/felipeog/beh-zee-ay
         </a>
       </footer>
