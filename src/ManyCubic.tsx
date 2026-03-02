@@ -306,7 +306,7 @@ export function ManyCubic() {
   }
 
   return (
-    <section className="ManyCubic">
+    <section>
       <h2>Many cubic curves</h2>
 
       <p>
@@ -324,7 +324,7 @@ export function ManyCubic() {
       <p>move a handle by dragging it</p>
 
       <svg
-        className="svg"
+        className="svg-container"
         ref={svgRef}
         xmlns="http://www.w3.org/2000/svg"
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
@@ -455,7 +455,7 @@ function Handle({
   }
 
   return (
-    <g className="Handle">
+    <g>
       <text
         x={point.middle.x + 8}
         y={point.middle.y}
@@ -466,7 +466,7 @@ function Handle({
       </text>
 
       <circle
-        className="draggable"
+        className="svg-draggable"
         ref={middleRef}
         cx={point.middle.x}
         cy={point.middle.y}
@@ -483,7 +483,7 @@ function Handle({
       ></circle>
 
       <rect
-        className="draggable"
+        className="svg-draggable"
         ref={rightRef}
         x={point.right.x - 7 / 2}
         y={point.right.y - 7 / 2}
@@ -499,7 +499,7 @@ function Handle({
         onLostPointerCapture={handleLostPointerCapture}
       ></rect>
       <rect
-        className="draggable"
+        className="svg-draggable"
         ref={leftRef}
         x={point.left.x - 7 / 2}
         y={point.left.y - 7 / 2}
@@ -527,7 +527,6 @@ function HandlePath({ points }: { points: TPoint[] }) {
 
   return (
     <path
-      className="HandlePath"
       fill="none"
       stroke="var(--handle-path-stroke)"
       strokeWidth="1"
@@ -539,7 +538,6 @@ function HandlePath({ points }: { points: TPoint[] }) {
 function CurvePoints({ coordinates }: { coordinates: TCoord[] }) {
   return coordinates.map((c, i) => (
     <circle
-      className="CurvePoints"
       key={i}
       cx={c.x}
       cy={c.y}
@@ -562,7 +560,6 @@ function CurvePath({ coordinates }: { coordinates: TCoord[] }) {
 
   return (
     <path
-      className="CurvePath"
       fill="none"
       stroke="var(--curve-path-stroke)"
       strokeWidth="2"

@@ -22,12 +22,13 @@
   }
 }
 
-.svg {
+svg.svg-container {
   margin-bottom: 1rem;
   max-width: 600px;
   overflow: visible;
 }
 
-.draggable {
+rect.svg-draggable,
+circle.svg-draggable {
   cursor: move;
 }

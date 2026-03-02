@@ -222,7 +222,7 @@ export function OneNthOrder() {
   }
 
   return (
-    <section className="OneNthOrder">
+    <section>
       <h2>One nth-order curve</h2>
 
       <p>
@@ -239,7 +239,7 @@ export function OneNthOrder() {
       <p>move a handle by dragging it</p>
 
       <svg
-        className="svg"
+        className="svg-container"
         ref={svgRef}
         xmlns="http://www.w3.org/2000/svg"
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
@@ -364,9 +364,9 @@ function Handle({
   }
 
   return (
-    <g className="Handle">
+    <g>
       <circle
-        className="draggable"
+        className="svg-draggable"
         ref={circleRef}
         cx={point.x}
         cy={point.y}
@@ -405,7 +405,6 @@ function HandlePath({ points }: { points: TPoint[] }) {
 
   return (
     <path
-      className="HandlePath"
       fill="none"
       stroke="var(--handle-path-stroke)"
       strokeWidth="1"
@@ -417,7 +416,6 @@ function HandlePath({ points }: { points: TPoint[] }) {
 function CurvePoints({ coordinates }: { coordinates: TCoordinates[] }) {
   return coordinates.map((c, i) => (
     <circle
-      className="CurvePoints"
       key={i}
       cx={c.x}
       cy={c.y}
@@ -440,7 +438,6 @@ function CurvePath({ coordinates }: { coordinates: TCoordinates[] }) {
 
   return (
     <path
-      className="CurvePath"
       fill="none"
       stroke="var(--curve-path-stroke)"
       strokeWidth="2"
