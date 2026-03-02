@@ -104,7 +104,13 @@ export function OneNthOrder() {
       y: svgCoordinates.y,
     };
 
-    setPoints((prevPoints) => [...prevPoints, point]);
+    setPoints((prevPoints) => {
+      const points = structuredClone(prevPoints);
+
+      points.push(point);
+
+      return points;
+    });
   }
 
   const curveCoordinates = useMemo(() => {
@@ -200,7 +206,7 @@ export function OneNthOrder() {
             bottomRightCoordinates.y,
           ),
         };
-        const points = [...prevPoints];
+        const points = structuredClone(prevPoints);
 
         points[index].x = clampedCoordinates.x;
         points[index].y = clampedCoordinates.y;
