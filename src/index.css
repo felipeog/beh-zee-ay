@@ -1,4 +1,28 @@
 :root {
+  --rect-fill: #f7faff;
+  --rect-stroke: #d6deea;
+  --handle-fill: #d6deea;
+  --handle-stroke: #1f2a38;
+  --curve-point-stroke: #d6deea;
+  --curve-path-stroke: #1f2a38;
+  --text-fill: #1f2a38;
+  --handle-path-stroke: #e6edf7;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --rect-fill: #0f141c;
+    --rect-stroke: #1c2533;
+    --handle-fill: #1c2533;
+    --handle-stroke: #dbe6f5;
+    --curve-point-stroke: #1c2533;
+    --curve-path-stroke: #dbe6f5;
+    --text-fill: #dbe6f5;
+    --handle-path-stroke: #1c2533;
+  }
+}
+
+/* :root {
   --rect-fill: #fff;
   --rect-stroke: #ddd;
   --handle-fill: #ddd;
@@ -20,7 +44,7 @@
     --text-fill: #eee;
     --handle-path-stroke: #222;
   }
-}
+} */
 
 svg.svg-container {
   margin-bottom: 1rem;

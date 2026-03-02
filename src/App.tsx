@@ -1,5 +1,5 @@
-import { OneNthOrder } from "./OneNthOrder";
-import { ManyCubic } from "./ManyCubic";
+import { ManyCubic } from "./sections/ManyCubic";
+import { OneNthOrder } from "./sections/OneNthOrder";
 
 export function App() {
   return (
