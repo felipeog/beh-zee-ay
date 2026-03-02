@@ -6,8 +6,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 // types
 // =============================================================================
 
-type TCoordinates = { x: number; y: number };
-type TPoint = TCoordinates & { id: string; order: number };
+type TCoord = { x: number; y: number };
+type TPoint = TCoord & { id: string; order: number };
 type TPreset = TPoint[];
 
 // =============================================================================
@@ -92,15 +92,15 @@ export function OneNthOrder() {
   const [points, setPoints] = useState(HEART);
 
   function handleRectClick(event: React.MouseEvent<SVGRectElement>) {
-    const svgCoordinates = getSvgCoordinatesFromScreenCoordinates({
+    const svgCoord = getSvgCoordFromScreenCoord({
       x: event.clientX,
       y: event.clientY,
     });
     const point: TPoint = {
       id: generateId(),
       order: points.length,
-      x: svgCoordinates.x,
-      y: svgCoordinates.y,
+      x: svgCoord.x,
+      y: svgCoord.y,
     };
 
     setPoints((prevPoints) => {
@@ -112,56 +112,51 @@ export function OneNthOrder() {
     });
   }
 
-  const curveCoordinates = useMemo(() => {
+  const curveCoords = useMemo(() => {
     if (points.length <= 0) return [];
 
-    const initialCoordinates: TCoordinates[] = points.map(({ x, y }) => ({
-      x,
-      y,
-    }));
-    const curveCoordinates = [];
+    const initialCoords: TCoord[] = points.map(({ x, y }) => ({ x, y }));
+    const curveCoords = [];
 
     for (let segment = 0; segment <= segments; segment++) {
       const t = segment / segments;
-      let coordinates = [...initialCoordinates];
+      let coords = [...initialCoords];
 
-      while (coordinates.length > 1) {
-        const midCoordinates = [];
+      while (coords.length > 1) {
+        const midCoords = [];
 
-        for (let i = 0; i + 1 < coordinates.length; ++i) {
-          const a = coordinates[i];
-          const b = coordinates[i + 1];
+        for (let i = 0; i + 1 < coords.length; ++i) {
+          const a = coords[i];
+          const b = coords[i + 1];
 
-          midCoordinates.push({
+          midCoords.push({
             x: a.x + t * (b.x - a.x),
             y: a.y + t * (b.y - a.y),
           });
         }
 
-        coordinates = [...midCoordinates];
+        coords = [...midCoords];
       }
 
-      curveCoordinates.push(coordinates[0]);
+      curveCoords.push(coords[0]);
     }
 
-    return curveCoordinates;
+    return curveCoords;
   }, [points, segments]);
 
-  function getSvgCoordinatesFromScreenCoordinates(
-    screenCoordinates: TCoordinates,
-  ): TCoordinates {
+  function getSvgCoordFromScreenCoord(screenCoord: TCoord): TCoord {
     const screenMatrix = svgRef.current!.getScreenCTM();
     const svgMatrix = screenMatrix!.inverse();
     const svgPoint = svgRef.current!.createSVGPoint();
 
-    svgPoint.x = screenCoordinates.x;
-    svgPoint.y = screenCoordinates.y;
+    svgPoint.x = screenCoord.x;
+    svgPoint.y = screenCoord.y;
 
-    const svgCoordinates = svgPoint.matrixTransform(svgMatrix);
+    const svgCoord = svgPoint.matrixTransform(svgMatrix);
 
     return {
-      x: svgCoordinates.x,
-      y: svgCoordinates.y,
+      x: svgCoord.x,
+      y: svgCoord.y,
     };
   }
 
@@ -179,32 +174,32 @@ export function OneNthOrder() {
     return (event: React.PointerEvent<SVGCircleElement>) => {
       setPoints((prevPoints) => {
         const rect = svgRef.current!.getBoundingClientRect();
-        const topLeftCoordinates = getSvgCoordinatesFromScreenCoordinates({
+        const topLeftCoord = getSvgCoordFromScreenCoord({
           x: rect.left,
           y: rect.top,
         });
-        const bottomRightCoordinates = getSvgCoordinatesFromScreenCoordinates({
+        const bottomRightCoord = getSvgCoordFromScreenCoord({
           x: rect.right,
           y: rect.bottom,
         });
-        const cursorCoordinates = getSvgCoordinatesFromScreenCoordinates({
+        const cursorCoord = getSvgCoordFromScreenCoord({
           x: event.clientX,
           y: event.clientY,
         });
-        const clampedCoordinates = {
+        const clampedCoord = {
           x: Math.min(
-            Math.max(cursorCoordinates.x, topLeftCoordinates.x),
-            bottomRightCoordinates.x,
+            Math.max(cursorCoord.x, topLeftCoord.x),
+            bottomRightCoord.x,
           ),
           y: Math.min(
-            Math.max(cursorCoordinates.y, topLeftCoordinates.y),
-            bottomRightCoordinates.y,
+            Math.max(cursorCoord.y, topLeftCoord.y),
+            bottomRightCoord.y,
           ),
         };
         const points = structuredClone(prevPoints);
 
-        points[index].x = clampedCoordinates.x;
-        points[index].y = clampedCoordinates.y;
+        points[index].x = clampedCoord.x;
+        points[index].y = clampedCoord.y;
 
         return points;
       });
@@ -258,11 +253,11 @@ export function OneNthOrder() {
         </g>
 
         <g>
-          <CurvePoints coordinates={curveCoordinates} />
+          <CurvePoints coords={curveCoords} />
         </g>
 
         <g>
-          <CurvePath coordinates={curveCoordinates} />
+          <CurvePath coords={curveCoords} />
         </g>
 
         <g>
@@ -413,8 +408,8 @@ function HandlePath({ points }: { points: TPoint[] }) {
   );
 }
 
-function CurvePoints({ coordinates }: { coordinates: TCoordinates[] }) {
-  return coordinates.map((c, i) => (
+function CurvePoints({ coords }: { coords: TCoord[] }) {
+  return coords.map((c, i) => (
     <circle
       key={i}
       cx={c.x}
@@ -427,14 +422,14 @@ function CurvePoints({ coordinates }: { coordinates: TCoordinates[] }) {
   ));
 }
 
-function CurvePath({ coordinates }: { coordinates: TCoordinates[] }) {
+function CurvePath({ coords }: { coords: TCoord[] }) {
   const d = useMemo(() => {
-    return coordinates.reduce((a, c, i) => {
+    return coords.reduce((a, c, i) => {
       const command = i > 0 ? "L" : "M";
 
       return `${a} ${command} ${c.x} ${c.y}`;
     }, "");
-  }, [coordinates]);
+  }, [coords]);
 
   return (
     <path

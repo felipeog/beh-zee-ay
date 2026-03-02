@@ -169,7 +169,7 @@ export function ManyCubic() {
   const [points, setPoints] = useState(HEART);
 
   function handleRectClick(event: React.MouseEvent<SVGRectElement>) {
-    const svgCoord = getSvgCoordFromScreenCoords({
+    const svgCoord = getSvgCoordFromScreenCoord({
       x: event.clientX,
       y: event.clientY,
     });
@@ -190,10 +190,10 @@ export function ManyCubic() {
     });
   }
 
-  const curveCoord = useMemo(() => {
+  const curveCoords = useMemo(() => {
     if (points.length < 2) return [];
 
-    const curveCoord: TCoord[] = [];
+    const curveCoords: TCoord[] = [];
 
     for (let i = 0; i < points.length - 1; ++i) {
       const a = points[i];
@@ -207,7 +207,7 @@ export function ManyCubic() {
         const t = segment / segments;
         const u = 1 - t;
 
-        curveCoord.push({
+        curveCoords.push({
           x:
             u * u * u * p0.x +
             3 * u * u * t * p1.x +
@@ -222,22 +222,22 @@ export function ManyCubic() {
       }
     }
 
-    return curveCoord;
+    return curveCoords;
   }, [points, segments]);
 
-  function getSvgCoordFromScreenCoords(screenCoordinates: TCoord): TCoord {
+  function getSvgCoordFromScreenCoord(screenCoord: TCoord): TCoord {
     const screenMatrix = svgRef.current!.getScreenCTM();
     const svgMatrix = screenMatrix!.inverse();
     const svgPoint = svgRef.current!.createSVGPoint();
 
-    svgPoint.x = screenCoordinates.x;
-    svgPoint.y = screenCoordinates.y;
+    svgPoint.x = screenCoord.x;
+    svgPoint.y = screenCoord.y;
 
-    const svgCoordinates = svgPoint.matrixTransform(svgMatrix);
+    const svgCoord = svgPoint.matrixTransform(svgMatrix);
 
     return {
-      x: svgCoordinates.x,
-      y: svgCoordinates.y,
+      x: svgCoord.x,
+      y: svgCoord.y,
     };
   }
 
@@ -263,32 +263,32 @@ export function ManyCubic() {
     }) => {
       setPoints((prevPoints) => {
         const rect = svgRef.current!.getBoundingClientRect();
-        const topLeftCoordinates = getSvgCoordFromScreenCoords({
+        const topLeftCoord = getSvgCoordFromScreenCoord({
           x: rect.left,
           y: rect.top,
         });
-        const bottomRightCoordinates = getSvgCoordFromScreenCoords({
+        const bottomRightCoord = getSvgCoordFromScreenCoord({
           x: rect.right,
           y: rect.bottom,
         });
-        const cursorCoordinates = getSvgCoordFromScreenCoords({
+        const cursorCoord = getSvgCoordFromScreenCoord({
           x,
           y,
         });
-        const clampedCoordinates = {
+        const clampedCoord = {
           x: Math.min(
-            Math.max(cursorCoordinates.x, topLeftCoordinates.x),
-            bottomRightCoordinates.x,
+            Math.max(cursorCoord.x, topLeftCoord.x),
+            bottomRightCoord.x,
           ),
           y: Math.min(
-            Math.max(cursorCoordinates.y, topLeftCoordinates.y),
-            bottomRightCoordinates.y,
+            Math.max(cursorCoord.y, topLeftCoord.y),
+            bottomRightCoord.y,
           ),
         };
         const points = structuredClone(prevPoints);
 
-        points[index][pointKey].x = clampedCoordinates.x;
-        points[index][pointKey].y = clampedCoordinates.y;
+        points[index][pointKey].x = clampedCoord.x;
+        points[index][pointKey].y = clampedCoord.y;
 
         return points;
       });
@@ -343,11 +343,11 @@ export function ManyCubic() {
         </g>
 
         <g>
-          <CurvePoints coordinates={curveCoord} />
+          <CurvePoints coords={curveCoords} />
         </g>
 
         <g>
-          <CurvePath coordinates={curveCoord} />
+          <CurvePath coords={curveCoords} />
         </g>
 
         <g>
@@ -535,8 +535,8 @@ function HandlePath({ points }: { points: TPoint[] }) {
   );
 }
 
-function CurvePoints({ coordinates }: { coordinates: TCoord[] }) {
-  return coordinates.map((c, i) => (
+function CurvePoints({ coords }: { coords: TCoord[] }) {
+  return coords.map((c, i) => (
     <circle
       key={i}
       cx={c.x}
@@ -549,14 +549,14 @@ function CurvePoints({ coordinates }: { coordinates: TCoord[] }) {
   ));
 }
 
-function CurvePath({ coordinates }: { coordinates: TCoord[] }) {
+function CurvePath({ coords }: { coords: TCoord[] }) {
   const d = useMemo(() => {
-    return coordinates.reduce((a, c, i) => {
+    return coords.reduce((a, c, i) => {
       const command = i > 0 ? "L" : "M";
 
       return `${a} ${command} ${c.x} ${c.y}`;
     }, "");
-  }, [coordinates]);
+  }, [coords]);
 
   return (
     <path
