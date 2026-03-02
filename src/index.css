@@ -32,33 +32,7 @@
 }
 
 html,
-button {
+button,
+input {
   font-family: system-ui, sans-serif;
 }
-
-.App {
-  margin: 1rem;
-}
-
-.App__svg {
-  margin: 2rem;
-  max-width: 600px;
-  overflow: visible;
-}
-
-.App__presets {
-  display: flex;
-  gap: 0.5rem;
-}
-
-/* .Handle {} */
-
-.Handle__circle {
-  cursor: move;
-}
-
-/* .HandlePath {} */
-
-/* .CurvePoints {} */
-
-/* .CurvePath {} */

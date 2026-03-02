@@ -1,0 +1,14 @@
+.OneNthOrder__svg {
+  margin: 2rem;
+  max-width: 600px;
+  overflow: visible;
+}
+
+.OneNthOrder__presets {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.Handle__circle {
+  cursor: move;
+}
