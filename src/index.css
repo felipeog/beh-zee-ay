@@ -22,30 +22,6 @@
   }
 }
 
-/* :root {
-  --rect-fill: #fff;
-  --rect-stroke: #ddd;
-  --handle-fill: #ddd;
-  --handle-stroke: #222;
-  --curve-point-stroke: #ddd;
-  --curve-path-stroke: #222;
-  --text-fill: #222;
-  --handle-path-stroke: #eee;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --rect-fill: #000;
-    --rect-stroke: #222;
-    --handle-fill: #222;
-    --handle-stroke: #eee;
-    --curve-point-stroke: #222;
-    --curve-path-stroke: #eee;
-    --text-fill: #eee;
-    --handle-path-stroke: #222;
-  }
-} */
-
 svg.svg-container {
   margin-bottom: 1rem;
   max-width: 600px;
