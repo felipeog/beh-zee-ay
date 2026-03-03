@@ -1,3 +1,5 @@
+import { createNoise2D } from "simplex-noise";
+
 import { SIZE } from "../../../constants/size";
 
 import type { TPreset } from "../types/TPreset";
@@ -94,8 +96,42 @@ export const PRESET_MAP = {
   line: LINE,
   curve: CURVE,
   heart: HEART,
+  get noise() {
+    const count = 5;
+    const preset: TPreset = [];
+    const noise2D = createNoise2D();
+    const freq = 0.2;
+    const spacing = 40;
+
+    for (let i = 0; i < count; i++) {
+      const isEven = i % 2 === 0;
+      const baseX =
+        ((noise2D(i * freq, 0) + 1) / 2) * (SIZE.WIDTH - 2 * spacing);
+      const baseY =
+        ((noise2D(i * freq, 9) + 1) / 2) * (SIZE.HEIGHT - 2 * spacing);
+
+      preset.push({
+        id: generateId(),
+        order: i,
+        left: {
+          x: baseX + spacing + (isEven ? spacing : -spacing),
+          y: baseY + spacing + (isEven ? -spacing : spacing),
+        },
+        middle: {
+          x: baseX + spacing,
+          y: baseY + spacing,
+        },
+        right: {
+          x: baseX + spacing + (isEven ? -spacing : spacing),
+          y: baseY + spacing + (isEven ? spacing : -spacing),
+        },
+      });
+    }
+
+    return preset;
+  },
   get random() {
-    const count = Math.floor(Math.random() * 8 + 2);
+    const count = 5;
     const preset: TPreset = [];
 
     for (let i = 0; i < count; i++) {

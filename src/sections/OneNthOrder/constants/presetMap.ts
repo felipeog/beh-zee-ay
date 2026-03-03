@@ -1,3 +1,5 @@
+import { createNoise2D } from "simplex-noise";
+
 import { SIZE } from "../../../constants/size";
 
 import type { TPreset } from "../types/TPreset";
@@ -36,8 +38,25 @@ export const PRESET_MAP = {
   quadratic: QUADRATIC,
   cubic: CUBIC,
   heart: HEART,
+  get noise() {
+    const count = 7;
+    const preset: TPreset = [];
+    const noise2D = createNoise2D();
+    const freq = 0.1;
+
+    for (let i = 0; i < count; i++) {
+      preset.push({
+        id: generateId(),
+        order: i,
+        x: ((noise2D(i * freq, 0) + 1) / 2) * SIZE.WIDTH,
+        y: ((noise2D(i * freq, 9) + 1) / 2) * SIZE.HEIGHT,
+      });
+    }
+
+    return preset;
+  },
   get random() {
-    const count = Math.floor(Math.random() * 8 + 2);
+    const count = 7;
     const preset: TPreset = [];
 
     for (let i = 0; i < count; i++) {
